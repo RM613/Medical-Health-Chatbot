@@ -364,7 +364,7 @@ with st.sidebar:
     st.caption("Your confidential companion")
     
     # ── New Chat Button ──
-    if st.button("➕ New Chat", use_container_width=True):
+    if st.button("➕ New Chat", use_container_width=True, key="new_chat_btn"):
         st.session_state.current_conversation_id = None
         st.session_state.messages = []
         st.session_state.memory = []
@@ -373,37 +373,40 @@ with st.sidebar:
     
     st.divider()
     
-    # ── Sidebar Navigation ──
-    nav_cols = st.columns(3)
-    with nav_cols[0]:
-        if st.button("📋", help="View conversations", use_container_width=True):
+    # ── Sidebar Navigation (Simple buttons without columns) ──
+    col1, col2, col3 = st.columns(3, gap="small")
+    with col1:
+        if st.button("📋", help="View conversations", key="nav_conv"):
             st.session_state.sidebar_view = "conversations"
-    with nav_cols[1]:
-        if st.button("🔍", help="Search", use_container_width=True):
+            st.rerun()
+    with col2:
+        if st.button("🔍", help="Search", key="nav_search"):
             st.session_state.sidebar_view = "search"
-    with nav_cols[2]:
-        if st.button("⚙️", help="Filters", use_container_width=True):
+            st.rerun()
+    with col3:
+        if st.button("⚙️", help="Filters", key="nav_filter"):
             st.session_state.sidebar_view = "filters"
+            st.rerun()
     
     st.divider()
     
     # ── Sidebar Views ──
     if st.session_state.sidebar_view == "search":
-        st.markdown("### 🔍 Search Conversations")
+        st.markdown("### 🔍 Search")
         query = st.text_input("Search by title", value=st.session_state.search_query, key="search_input")
         if query != st.session_state.search_query:
             st.session_state.search_query = query
+            st.rerun()
         
         results = search_conversations(query) if query else []
         if results:
             for conv in results:
-                col1, col2 = st.columns([0.9, 0.1])
-                with col1:
-                    title = get_display_title(conv)
-                    if st.button(f"{'📌 ' if conv.get('pinned') else ''}{title}", use_container_width=True, key=f"search_{conv['id']}"):
-                        st.session_state.current_conversation_id = conv['id']
-                        st.session_state.sidebar_view = "conversations"
-                        st.rerun()
+                title = get_display_title(conv)
+                btn_label = f"{'📌 ' if conv.get('pinned') else ''}{title}"
+                if st.button(btn_label, use_container_width=True, key=f"search_{conv['id']}"):
+                    st.session_state.current_conversation_id = conv['id']
+                    st.session_state.sidebar_view = "conversations"
+                    st.rerun()
         else:
             st.caption("No conversations found" if query else "Start typing to search…")
     
@@ -417,43 +420,46 @@ with st.sidebar:
         )
         if sort_option != st.session_state.filter_sort:
             st.session_state.filter_sort = sort_option
+            st.rerun()
         
         convs = filter_conversations(sort_by=sort_option)
         if convs:
             for conv in convs:
-                col1, col2, col3 = st.columns([0.8, 0.1, 0.1])
-                with col1:
-                    title = get_display_title(conv)
-                    if st.button(f"{'📌 ' if conv.get('pinned') else ''}{title}", use_container_width=True, key=f"filter_{conv['id']}"):
-                        st.session_state.current_conversation_id = conv['id']
-                        st.session_state.sidebar_view = "conversations"
-                        st.rerun()
+                title = get_display_title(conv)
+                btn_label = f"{'📌 ' if conv.get('pinned') else ''}{title}"
+                if st.button(btn_label, use_container_width=True, key=f"filter_{conv['id']}"):
+                    st.session_state.current_conversation_id = conv['id']
+                    st.session_state.sidebar_view = "conversations"
+                    st.rerun()
         else:
             st.caption("No conversations yet")
     
     else:  # conversations view
-        st.markdown("### 📋 Recent Conversations")
+        st.markdown("### 📋 Conversations")
         convs = get_all_conversations()
         
         if convs:
             # Pinned conversations
             pinned = [c for c in convs if c.get('pinned', False)]
             if pinned:
-                st.markdown("**📌 Pinned**")
+                st.caption("📌 **PINNED**")
                 for conv in pinned:
-                    col1, col2, col3 = st.columns([0.7, 0.15, 0.15])
-                    with col1:
-                        title = get_display_title(conv)
-                        is_current = st.session_state.current_conversation_id == conv['id']
-                        if st.button(title, use_container_width=True, key=f"conv_{conv['id']}", 
-                                    help=f"Active" if is_current else "Switch to this chat"):
-                            st.session_state.current_conversation_id = conv['id']
-                            st.rerun()
-                    with col2:
-                        if st.button("✎", key=f"rename_{conv['id']}", help="Rename"):
+                    title = get_display_title(conv)
+                    is_current = st.session_state.current_conversation_id == conv['id']
+                    btn_label = f"✓ {title}" if is_current else title
+                    
+                    if st.button(btn_label, use_container_width=True, key=f"conv_p_{conv['id']}"):
+                        st.session_state.current_conversation_id = conv['id']
+                        st.rerun()
+                    
+                    # Action buttons in a row (without columns)
+                    act_col1, act_col2 = st.columns(2, gap="small")
+                    with act_col1:
+                        if st.button("✎ Rename", use_container_width=True, key=f"rename_{conv['id']}"):
                             st.session_state.show_rename_dialog = conv['id']
-                    with col3:
-                        if st.button("🗑️", key=f"delete_{conv['id']}", help="Delete"):
+                            st.rerun()
+                    with act_col2:
+                        if st.button("🗑️ Delete", use_container_width=True, key=f"delete_{conv['id']}"):
                             delete_conversation(conv['id'])
                             if st.session_state.current_conversation_id == conv['id']:
                                 st.session_state.current_conversation_id = None
@@ -461,78 +467,88 @@ with st.sidebar:
                             st.rerun()
                 
                 if [c for c in convs if not c.get('pinned', False)]:
-                    st.markdown("**Other Conversations**")
+                    st.caption("📂 **OTHER**")
             
             # Unpinned conversations
             for conv in [c for c in convs if not c.get('pinned', False)]:
-                col1, col2, col3, col4 = st.columns([0.6, 0.13, 0.13, 0.14])
-                with col1:
-                    title = get_display_title(conv)
-                    is_current = st.session_state.current_conversation_id == conv['id']
-                    if st.button(title, use_container_width=True, key=f"conv_{conv['id']}", 
-                                help="Active" if is_current else "Switch to this chat"):
-                        st.session_state.current_conversation_id = conv['id']
-                        st.rerun()
-                with col2:
-                    if st.button("📌", key=f"pin_{conv['id']}", help="Pin"):
+                title = get_display_title(conv)
+                is_current = st.session_state.current_conversation_id == conv['id']
+                btn_label = f"✓ {title}" if is_current else title
+                
+                if st.button(btn_label, use_container_width=True, key=f"conv_{conv['id']}"):
+                    st.session_state.current_conversation_id = conv['id']
+                    st.rerun()
+                
+                # Action buttons in a row
+                act_col1, act_col2, act_col3 = st.columns(3, gap="small")
+                with act_col1:
+                    if st.button("📌", use_container_width=True, key=f"pin_{conv['id']}", help="Pin"):
                         pin_conversation(conv['id'], pinned=True)
                         st.rerun()
-                with col3:
-                    if st.button("✎", key=f"rename2_{conv['id']}", help="Rename"):
+                with act_col2:
+                    if st.button("✎", use_container_width=True, key=f"rename2_{conv['id']}", help="Rename"):
                         st.session_state.show_rename_dialog = conv['id']
-                with col4:
-                    if st.button("🗑️", key=f"delete2_{conv['id']}", help="Delete"):
+                        st.rerun()
+                with act_col3:
+                    if st.button("🗑️", use_container_width=True, key=f"delete2_{conv['id']}", help="Delete"):
                         delete_conversation(conv['id'])
                         if st.session_state.current_conversation_id == conv['id']:
                             st.session_state.current_conversation_id = None
                             st.session_state.messages = []
                         st.rerun()
         else:
-            st.caption("No conversations yet — start a new chat!")
+            st.info("📝 No conversations yet — start a new chat!")
     
     # ── Rename Dialog ──
     if st.session_state.show_rename_dialog:
         st.divider()
-        st.markdown("### ✏️ Rename Conversation")
+        st.markdown("### ✏️ Rename")
         conv = get_conversation(st.session_state.show_rename_dialog)
-        current_title = get_display_title(conv)
-        new_title = st.text_input("New title", value=st.session_state.rename_input or current_title, key="rename_field")
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.button("✅ Save", use_container_width=True):
-                rename_conversation(st.session_state.show_rename_dialog, new_title)
-                st.session_state.show_rename_dialog = None
-                st.session_state.rename_input = ""
-                st.rerun()
-        with col2:
-            if st.button("❌ Cancel", use_container_width=True):
-                st.session_state.show_rename_dialog = None
-                st.session_state.rename_input = ""
-                st.rerun()
+        if conv:
+            current_title = get_display_title(conv)
+            new_title = st.text_input("New title", value=st.session_state.rename_input or current_title, key="rename_field")
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("✅ Save", use_container_width=True, key="rename_save"):
+                    rename_conversation(st.session_state.show_rename_dialog, new_title)
+                    st.session_state.show_rename_dialog = None
+                    st.session_state.rename_input = ""
+                    st.rerun()
+            with col2:
+                if st.button("❌ Cancel", use_container_width=True, key="rename_cancel"):
+                    st.session_state.show_rename_dialog = None
+                    st.session_state.rename_input = ""
+                    st.rerun()
     
     st.divider()
     
     # ── Status & Resources ──
     if st.session_state.messages:
         st.markdown("### 📊 Session")
-        c1, c2 = st.columns(2)
-        with c1: st.metric("Messages", len(st.session_state.messages))
-        with c2: st.metric("Memory", f"{len([m for m in st.session_state.memory if isinstance(m, HumanMessage)])}/10")
+        col1, col2 = st.columns(2)
+        with col1: 
+            st.metric("Messages", len(st.session_state.messages))
+        with col2: 
+            st.metric("Memory", f"{len([m for m in st.session_state.memory if isinstance(m, HumanMessage)])}/10")
     
-    with st.expander("💡 Tips for Better Conversations"):
-        st.markdown("- Be specific about what you're feeling\n- Mention context: work, sleep, events\n- Ask follow-ups if needed")
+    with st.expander("💡 Tips"):
+        st.markdown("- Be specific\n- Mention context\n- Ask follow-ups")
     with st.expander("🆘 Crisis Resources"):
-        st.markdown("🇺🇸 **USA** — 988 | Text HOME → 741741\n\n🇬🇧 **UK** — 116 123\n\n🇮🇳 **India** — AASRA: 9820466626")
-    with st.expander("ℹ️ About MindEase"):
-        st.markdown("Powered by **LLaMA 3.3 70B** via Groq + RAG over a curated mental health knowledge base.\n\n⚠️ Not a substitute for professional care.")
+        st.markdown("🇺🇸 **USA** — 988\n\n🇬🇧 **UK** — 116 123\n\n🇮🇳 **India** — 9820466626")
+    with st.expander("ℹ️ About"):
+        st.markdown("Powered by **LLaMA 3.3 70B** via Groq + RAG.\n\n⚠️ Not a substitute for professional care.")
     
     st.divider()
     s = st.session_state.db_status
-    if s == "ready": st.success("✅ Knowledge base active")
-    elif s == "loading": st.warning("⏳ Loading…")
-    elif s == "error": st.error(f"❌ {getattr(st.session_state,'_init_error','error')}")
-    else: st.info("⚙️ Set GROQ_API_KEY in .env")
-    st.caption("🔒 Conversations stay on your device.")
+    if s == "ready": 
+        st.success("✅ Ready")
+    elif s == "loading": 
+        st.warning("⏳ Loading…")
+    elif s == "error": 
+        st.error(f"❌ Error")
+    else: 
+        st.info("⚙️ No API key")
+    st.caption("🔒 Private & local.")
 
 # ── Main ──
 # Sidebar toggle styling
