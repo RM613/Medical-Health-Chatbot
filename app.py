@@ -219,7 +219,7 @@ button[kind="secondary"]:hover {
 
 [data-testid="stChatMessage"][aria-label="user"] [data-testid="stMarkdownContainer"] {
     background: linear-gradient(135deg, var(--royal), var(--royal-mid)) !important;
-    color: #e8eeff !important;
+    color: #ffffff !important;
     border-radius: 18px 4px 18px 18px !important;
     padding: 0.9rem 1.2rem !important;
     font-size: 0.92rem !important;
@@ -228,9 +228,16 @@ button[kind="secondary"]:hover {
     border: 1px solid rgba(201,168,76,0.2) !important;
     box-shadow: var(--shadow-royal) !important;
 }
+
+[data-testid="stChatMessage"][aria-label="user"] p,
+[data-testid="stChatMessage"][aria-label="user"] span,
+[data-testid="stChatMessage"][aria-label="user"] div {
+    color: #ffffff !important;
+}
+
 [data-testid="stChatMessage"][aria-label="assistant"] [data-testid="stMarkdownContainer"] {
     background: white !important;
-    color: var(--text-dark) !important;
+    color: #0a1230 !important;
     border-radius: 4px 18px 18px 18px !important;
     padding: 0.9rem 1.2rem !important;
     font-size: 0.92rem !important;
@@ -239,6 +246,12 @@ button[kind="secondary"]:hover {
     border: 1.5px solid var(--ivory-dark) !important;
     border-left: 3px solid var(--gold) !important;
     box-shadow: var(--shadow-royal) !important;
+}
+
+[data-testid="stChatMessage"][aria-label="assistant"] p,
+[data-testid="stChatMessage"][aria-label="assistant"] span,
+[data-testid="stChatMessage"][aria-label="assistant"] div {
+    color: #0a1230 !important;
 }
 
 /* ── Chat input ── */
@@ -317,10 +330,11 @@ with st.sidebar:
     st.caption("🔒 Conversations stay on your device.")
 
 # ── Main ──
-# Add sidebar toggle button (works because Streamlit's sidebar toggle is hidden)
+# Sidebar toggle styling
 st.markdown("""
 <style>
-.sidebar-toggle-btn {
+/* Make sidebar toggle button visible and styled */
+button[aria-label="Close sidebar"] {
     position: fixed;
     top: 1rem;
     left: 1rem;
@@ -331,12 +345,13 @@ st.markdown("""
     border-radius: 8px !important;
     padding: 0.6rem 1rem !important;
     font-weight: 600 !important;
-    font-size: 0.9rem !important;
+    font-size: 1.2rem !important;
     cursor: pointer !important;
     transition: all 0.3s ease !important;
     box-shadow: 0 4px 12px rgba(13,27,75,0.25) !important;
 }
-.sidebar-toggle-btn:hover {
+
+button[aria-label="Close sidebar"]:hover {
     background: linear-gradient(135deg, #263d9e, #1a2f7a) !important;
     box-shadow: 0 6px 20px rgba(201,168,76,0.25) !important;
     transform: translateY(-2px) !important;
