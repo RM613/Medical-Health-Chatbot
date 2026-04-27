@@ -217,6 +217,11 @@ button[kind="secondary"]:hover {
 }
 @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
 
+/* USER MESSAGE - Force white text */
+[data-testid="stChatMessage"][aria-label="user"] {
+    color: #ffffff !important;
+}
+
 [data-testid="stChatMessage"][aria-label="user"] [data-testid="stMarkdownContainer"] {
     background: linear-gradient(135deg, var(--royal), var(--royal-mid)) !important;
     color: #ffffff !important;
@@ -229,10 +234,25 @@ button[kind="secondary"]:hover {
     box-shadow: var(--shadow-royal) !important;
 }
 
-[data-testid="stChatMessage"][aria-label="user"] p,
-[data-testid="stChatMessage"][aria-label="user"] span,
+[data-testid="stChatMessage"][aria-label="user"] [data-testid="stMarkdownContainer"] * {
+    color: #ffffff !important;
+}
+
+[data-testid="stChatMessage"][aria-label="user"] p {
+    color: #ffffff !important;
+}
+
+[data-testid="stChatMessage"][aria-label="user"] span {
+    color: #ffffff !important;
+}
+
 [data-testid="stChatMessage"][aria-label="user"] div {
     color: #ffffff !important;
+}
+
+/* ASSISTANT MESSAGE - Force dark text */
+[data-testid="stChatMessage"][aria-label="assistant"] {
+    color: #0a1230 !important;
 }
 
 [data-testid="stChatMessage"][aria-label="assistant"] [data-testid="stMarkdownContainer"] {
@@ -248,11 +268,24 @@ button[kind="secondary"]:hover {
     box-shadow: var(--shadow-royal) !important;
 }
 
-[data-testid="stChatMessage"][aria-label="assistant"] p,
-[data-testid="stChatMessage"][aria-label="assistant"] span,
+[data-testid="stChatMessage"][aria-label="assistant"] [data-testid="stMarkdownContainer"] * {
+    color: #0a1230 !important;
+}
+
+[data-testid="stChatMessage"][aria-label="assistant"] p {
+    color: #0a1230 !important;
+}
+
+[data-testid="stChatMessage"][aria-label="assistant"] span {
+    color: #0a1230 !important;
+}
+
 [data-testid="stChatMessage"][aria-label="assistant"] div {
     color: #0a1230 !important;
 }
+
+/* Override any inherited colors */
+[data-testid="stChatMessage"] * { color: inherit !important; }
 
 /* ── Chat input ── */
 [data-testid="stChatInput"] {
