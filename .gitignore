@@ -38,5 +38,8 @@ Thumbs.db
 # Chroma DB
 chroma_db/
 
+# Conversation History
+conversations_data/
+
 # CSV (optional - remove if you want to track this)
 # Mental_Health_FAQ.csv
