@@ -1,0 +1,42 @@
+# Virtual Environment
+.venv/
+venv/
+env/
+mh/
+ENV/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Streamlit
+.streamlit/
+*.streamlit/
+
+# Chroma DB
+chroma_db/
+
+# CSV (optional - remove if you want to track this)
+# Mental_Health_FAQ.csv
